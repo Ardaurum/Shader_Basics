@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shaders</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Helvetica'; color: white; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        color: #DBDAB1;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-slide-content { font-size: 24px; }
+
+      table {
+        border-collapse: collapse;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      th, td {
+        padding: 10px 40px;
+        border: 1px solid #DDDDDD;
+      }
+
+      th {
+        background-color: #444444;
+      }
+
+      a {
+        color: #AA88FF;
+        text-decoration: none;
+      }
+
+      .panel-image img {
+        max-width: 80%;
+        max-height: 400px;
+      }
+
+      .title {
+        font-size: 80px;
+      }
+
+      .black {
+        color: black;
+      }
+
+      .agenda ol {
+        font-size: 28px;
+      }
+
+      .biggerCode {
+        font-size: 40px !important;
+      }
+
+      #turtleContainer {
+        position: absolute;
+        width: 100%;
+        height: 80px;
+        overflow: hidden;
+        bottom: 10px;
+      }
+
+      #turtle {
+        position: relative;
+        left: 10px;
+        top: 20px;
+        transition: left;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="turtleContainer">
+      <img id="turtle" src="Images/Turtle.png">
+    </div>
+    <textarea id="source">
+
+layout: true
+background-color: #272822
+
+---
+
+class: center, middle
+# .title[Podstawy pisania shaderów]
+
+---
+
+# Radosław Paszkowski
+## @RadekPaszkowski
+
+.center[![Blindflug Studios](Images/Blindflug_Logo.png)]
+.center[![Politechnika Poznańska](Images/Polibuda.png)        
+![Ruch Projektantów Gier](Images/RPG_Logo.png)]
+
+---
+
+# Airheart - [Facebook](https://www.facebook.com/airheartgame), [Twitter](https://twitter.com/airheartgame), [Blindflug](https://www.blindflugstudios.com/our-games/airheart/)
+
+.center[.panel-image[![Airheart](Images/AirheartScreenshot.jpg)]]
+.right[Źródło: [Airheart](http://airheartgame.com/)]
+
+---
+
+# Shadery
+
+<div class="center"><video width="700" height="420" controls>
+  <source src="Images/Clouds.mp4" type="video/mp4">
+  Your browser does not support mp4 or video tag.
+</video></div>
+
+---
+
+class: agenda
+
+# Plan
+
+1. [Po co pisać Shadery?](#WhyShaders)
+2. [Fragment (Pixel) Shader](#Fragment)
+3. [UV Mapping](#UVMapping)
+4. [Blending](#Blending)
+5. [Back-culling](#BackCulling)
+6. [ZBuffer](#ZBuffer)
+7. [Alpha Testing](#AlphaTest)
+8. [Vertex Shader](#Vertex)
+9. [Typy danych](#Data)
+10. [Podstawy matematyki](#Mathematics)
+11. [Debugowanie shaderów](#Debugging)
+12. [Źródła](#Sources)
+
+---
+
+name: WhyShaders
+
+# Po co pisać Shadery?
+
+.center[.panel-image[![ShaderForge](Images/ShaderForge.jpg)]]
+.right[źródło: [ShaderForge](http://www.acegikmo.com/shaderforge/)]
+
+---
+
+# Po co pisać Shadery? Złożoność kodu
+
+.center[.panel-image[![Unreal](Images/Unreal.png)]]
+.right[źródło: [Unreal Forum](https://answers.unrealengine.com/questions/25422/shader-in-c-to-material-blueprint.html)]
+.right[bonus: [Bleprints From Hell](https://blueprintsfromhell.tumblr.com/)]
+
+---
+
+# Po co pisać Shadery? Złożoność kodu
+
+.center[.panel-image[![ShaderToy](Images/ShaderToy.jpg)]]
+.right[źródło: [TDM - ShaderToy](https://www.shadertoy.com/view/Ms2SD1)]
+
+---
+
+# Po co pisać Shadery? Screen-space effects
+
+.center[.panel-image[![DeusEx](Images/DeusEx.jpg)]]
+.right[źródło: [Deus Ex](http://www.adriancourreges.com/blog/2015/03/10/deus-ex-human-revolution-graphics-study)]
+
+---
+
+# Po co pisać Shadery? Animacje na vertex Shader
+
+<div class="center"><iframe width="700" height="420" src="https://www.youtube.com/embed/LjCjXFmkX-4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+
+---
+
+# Po co pisać Shadery? Geometry oraz compute Shadery
+
+<div class="center"><iframe width="700" height="420" src="https://www.youtube.com/embed/7EEwMmExsPw" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+
+---
+
+# Po co pisać Shadery? Podsumowanie
+
+1. Tworzenie niesamowitych efektów graficznych
+2. Optymalizacja gry
+3. Animacje niemożliwe do osiągnięcia normalnymi sposobami
+4. Proceduralne generowanie (real-time w szczególności)
+5. Matematyka w Unity
+6. Job System w Unity
+7. Świetna zabawa dla nerdów lubiących matematykę :D
+
+---
+
+# Template
+
+```
+Shader "Template" {
+  SubShader {
+    Pass {
+      CGPROGRAM
+      #pragma vertex vert
+      #pragma fragment frag
+
+      struct appdata { float4 vertex : POSITION; };
+      struct v2f { float4 vertex : SV_POSITION; };
+      
+      v2f vert (appdata v) {
+        v2f o;
+        o.vertex = UnityObjectToClipPos(v.vertex);
+        return o;
+      }
+      
+      fixed4 frag (v2f i) : SV_Target {
+        return fixed4(0, 1, 0, 1);
+      }
+      ENDCG
+    }
+  }
+}
+```
+
+---
+
+name: Fragment
+
+# Fragment (Pixel) Shader
+
+.center[.panel-image[![Basic-Fragment](Images/Fragment_Basic.jpg)]]
+
+---
+
+name: UVMapping
+
+# UV Mapping
+
+.center[.panel-image[![Texture coordinate](Images/texcoordproportion.png)]]
+.right[Źródło: [3D modelling for programmers](https://cathyatseneca.gitbooks.io/3d-modelling-for-programmers/content/unwrapping/texture_coordinates.html)]
+
+---
+
+name: Blending
+
+# Blending
+
+## Texture Blending - [Photoshop Blend Modes](https://photoblogstop.com/photoshop/photoshop-blend-modes-explained)
+
+.center[.panel-image[![Texture blending](Images/BlendingTextures.jpg)]]
+
+---
+
+# Blending
+
+## Buffer Blending
+
+.center[.panel-image[![Buffer blending](Images/Transparency.jpg)]]
+
+---
+
+name: BackCulling
+
+# Back-Culling 
+
+.center[.panel-image[![Back face culling](Images/BackFaceCulling.jpg)]]
+
+---
+
+name: ZBuffer
+
+# ZBuffer
+
+.center[.panel-image[![ZTest Greater](Images/ZTestGreater.jpg)]]
+
+---
+
+name: AlphaTest
+
+# Alpha Testing
+
+.center[.panel-image[![Alpha Test](Images/AlphaTest.jpg)]]
+
+---
+
+name: Vertex
+
+# Vertex Shader
+
+.center[.panel-image[![Vertex Shader Animation](Images/VertexShader.jpg)]]
+
+---
+
+name: Data
+
+# Typy danych
+
+- float - 32 bit
+- half - 16 bit (na niektórych nowych urządzeniach traktowane jako float)
+- fixed - 11 bit (na większości urządzeń traktowane tak samo jak half)
+- int - na starszych urządzeniach traktowane jako float (problem z operacjami bitowymi)
+- bool - pod spodem jest to float
+- floatA (half, fixed, int)
+- floatAxB (half, fixed, int)
+- sampler2D
+- samplerCUBE
+
+---
+
+# Typy danych swizzling
+
+.biggerCode[
+```
+float4 vertex = float4(2, 4, 0, 1);
+vertex.xyzw = vertex.wzyx;
+vertex.rgba = vertex.abgr;
+vertex.zwyx = vertex.yyyy;
+vertex.xyz *= vertex.w;
+vertex.zy += vertex.zz;
+```
+]
+
+---
+
+name: Mathematics
+
+# Podstawy matematyki - Macierze
+
+.center[.panel-image[![MVP matrices](Images/transformations.png)]]
+.right[Źródło: [Screen coordinates](https://forum.libcinder.org/topic/finding-an-object-s-screen-coordinates)]
+
+---
+
+# Podstawy matematyki - Wektory i skalary ([Unity](https://github.com/Unity-Technologies/Unity.Mathematics/blob/master/src/Unity.Mathematics/math.cs))
+
+```
+(0, 0, 0, 0) // wektor
+(0, 0, 0, 1) // punkt
+
+(2, 4, 3, 1) - (1, 2, 1, 1) = (1, 2, 2, 0) // odejmowanie punktów daje nam wektor
+
+u = v/||v|| // normalizacja wektora. Wektor o długości 1.
+
+dot(v1, v2) = ||v1||*||v2||*cos(theta) // jeżeli `v1` i `v2` są znormalizowane to otrzymujemy cosinus kąta
+
+cross(v1, v2) = ||v1||*||v2||*sin(theta)*n // `n` - wektor normalny prostopadły do pozostałych dwóch
+
+reflect(v, n) = v - 2.0f * n * dot(v, n) // `n` - wektor normalny powierzchni odbijającej 
+                                         //`n * dot(v, n)` jest rzutem wektora `v` na `n`
+
+distance(v1, v2) = length(v1 - v2)
+length(v) = ||v|| = sqrt(dot(v, v))
+
+step(a, b) = a >= b ? 0 : 1
+lerp(a, b, w) = a + w * (b - a) // interpolacja liniowa
+smoothstep(a, b, w) = t * t (3 - 2 * t) // interpolacja Hermite'a -> t = ((w - a) / (b - a))
+
+trunc(a), round(a), ceil(a), floor(a) // zaokrąglenia
+clamp(x, a, b), saturate(x) // sprowadzenie liczby do zakresu. saturate(x) = clamp(x, 0, 1) 
+```
+
+---
+
+# Podstawy matematyki - Trygonometria
+
+.center[.panel-image[![Trigonometry](Images/Trigonometry.jpg)]]
+.right[Źródło: [Cheat Sheet](http://tutorial.math.lamar.edu/pdf/Trig_Cheat_Sheet.pdf)]
+
+---
+
+# Podstawy matematyki - Losowość ([Book of Shaders](https://thebookofshaders.com/10/))
+
+Nie ma funkcji w hlsl oraz glsl, która zwracała by losową wartość, więc trzeba taką samemu zaimplementować:
+```
+float random1D(float x) {
+  return fract(sin(x*12.9898)*43758.865);
+}
+
+float random2D(float2 v) {
+  return fract(sin(dot(v.xy, float2(12.9898, 78.233))) * 43758.5453123);
+}
+```
+
+---
+
+name: Debugging
+
+# Debugowanie shaderów
+
+.center[.panel-image[![Debugging](Images/Debugging.jpg)]]
+
+---
+
+name: Task
+
+# Zadanie - stworzyć Shader
+
+.center[.panel-image[![Task](Images/Chess.jpg)]]
+przydatne rzeczy: `uv, frac, clip, ceil, _Time, random2D`
+
+---
+
+name: Sources
+
+# Źródła
+
+- [The book of shaders](https://thebookofshaders.com/) - matematyka w shaderach
+- [Shadertoy](https://thebookofshaders.com/) - przykłady fragment shaderów (post-processy, demoscena)
+- [GDC Vault](https://www.gdcvault.com/) - większość płatna, ale można znaleźć dobre darmowe wykłady
+- [Shader Development - Foundations](https://www.2dshaders.com/download-foundations/) - dobra książka na wstęp
+- [Unity Documentation](https://docs.unity3d.com/Manual/SL-VertexFragmentShaderExamples.html) - Dokumentacja Unity daje dużo przykładów oraz warto spojrzeć na wbudowane funkcje, czy rzeczy związane z oświetleniem itp.
+- [Unity Mathematics](https://github.com/Unity-Technologies/Unity.Mathematics/blob/master/src/Unity.Mathematics/math.cs) - Matematyka w nowym Unity zaimplementowana na podstawie funkcji matematycznych z shaderów
+- [NVidia Shader Documentation](http://developer.download.nvidia.com/cg/index_stdlib.html) - dokumentacja NVidia zawierająca funkcje hlsl (warto spojrzeć dla jakich wersji GPU dane funkcje są obsługiwane)
+- [Makin' Stuff Look Good](https://www.youtube.com/channel/UCEklP9iLcpExB8vp_fWQseg) - kanał na youtubie rozkładający efekty z różnych gier na czynniki pierwsze
+- [@realtimevfx](https://twitter.com/realtimevfx) - grupa na twitterze zawierająca wiele przykładów efektów wizualnych (opartych na efektach cząsteczkowych, ale także na shaderach)
+
+    </textarea>
+    <script src="remark.min.js" type="text/javascript">
+    </script>
+    <script src="remark-zoom.js" type="text/javascript">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        ratio: '16:9',
+        highlightLanguage: 'cs',
+        highlightStyle: 'vs',
+        highlightLines: true
+      });
+
+
+      var turtle = document.getElementById("turtle");
+      var container = document.getElementById("turtleContainer");
+      var time = 0;
+      var rotateMax = 30;
+      var speed = 0.001;
+
+      function update() {
+        time += 16;
+        var rotate = Math.sin(time * speed) * rotateMax;
+        turtle.style.transform = "rotate(" + rotate + "deg)";
+      }
+
+      (function() {
+        setInterval(update, 16);
+      })();
+    </script>
+  </body>
+</html>
