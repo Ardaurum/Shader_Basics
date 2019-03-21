@@ -4,8 +4,9 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: 6Texture_Blending_Add
   m_Shader: {fileID: 4800000, guid: a9ae003aa2716b2448329084c92c7b57, type: 3}
   m_ShaderKeywords: 
@@ -23,10 +24,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SecondTex:
-        m_Texture: {fileID: 2800000, guid: d312480052d32144a8b8a0d3b95b8ef1, type: 3}
+        m_Texture: {fileID: 2800000, guid: 85bc8cc192d9c5244bc44790ffb12793, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _MainFactor: 1
-    - _SecondFactor: 1
+    - _SecondFactor: 0.787
     m_Colors: []

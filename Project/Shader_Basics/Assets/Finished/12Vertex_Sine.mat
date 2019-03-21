@@ -4,8 +4,9 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: 12Vertex_Sine
   m_Shader: {fileID: 4800000, guid: 640236896037e7a46a3b9ab6c562fe37, type: 3}
   m_ShaderKeywords: ETC1_EXTERNAL_ALPHA
@@ -19,9 +20,9 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: d312480052d32144a8b8a0d3b95b8ef1, type: 3}
+        m_Texture: {fileID: 2800000, guid: 85bc8cc192d9c5244bc44790ffb12793, type: 3}
         m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+        m_Offset: {x: 0.56, y: 0.16}
     m_Floats:
     - _Factor: 4.7
     m_Colors: []

@@ -43,13 +43,14 @@
 				//Dlatego najbardziej przydatnym narzędziem jest debuggowanie wizualne
 				//poprzez dodawanie linijek zwracających odpowiednie wartości
 
-				//return col;
-				col.rgb = col.rgb * sin(_Time.y); //(1 + sin(_Time.y)) / 2.0 * col.rgb * col.a;
+				//return half4(col.rgb * col.a, 1.0);
+				col.rgb = col.rgb * sin(_Time.y * _Factor); 
+				//col.rgb = (1 + sin(_Time.y * _Factor)) / 2.0 * col.rgb * col.a;
 
 				//Na koniec, gdy robimy operację, które mogą wykroczyć poza wartość (0, 1)
 				//dobrze jest dać saturate(), który ustawi nam wartości w tym przedziale.
 				//W przeciwnym przypadku korzystając z HDR obiekty mogą być zbyt jasne
-				//a w przypadku starszych komputerów obiekty mogą stać się nagle czarne
+				//a w przypadku starszych kart graficznych obiekty mogą stać się nagle czarne
 				//lub wystąpić mogą inne artefakty
 				return saturate(col);
 			}

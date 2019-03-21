@@ -37,6 +37,12 @@
         text-decoration: none;
       }
 
+      .column:first-of-type {float:left}
+	  .column:last-of-type {float:right}
+
+	  .split-30 .column:first-of-type {width: 30%}
+	  .split-30 .column:last-of-type {width: 70%}
+
       .panel-image img {
         max-width: 80%;
         max-height: 400px;
@@ -77,7 +83,7 @@
   </head>
   <body>
     <div id="turtleContainer">
-      <img id="turtle" src="Images/Turtle.png">
+	    <img id="turtle" src="Images/Turtle.png">
     </div>
     <textarea id="source">
 
@@ -87,7 +93,8 @@ background-color: #272822
 ---
 
 class: center, middle
-# .title[Podstawy pisania shaderów]
+# .title[Shadery od podstaw]
+## czyli jak upiększyć grę
 
 ---
 
@@ -113,6 +120,8 @@ class: center, middle
   <source src="Images/Clouds.mp4" type="video/mp4">
   Your browser does not support mp4 or video tag.
 </video></div>
+[Stylized Clouds using particles](https://imgur.com/gallery/UD2LYsQ)  
+[Health Bar on Shaders](https://imgur.com/gallery/wVYbNEd)
 
 ---
 
@@ -120,18 +129,54 @@ class: agenda
 
 # Plan
 
-1. [Po co pisać Shadery?](#WhyShaders)
-2. [Fragment (Pixel) Shader](#Fragment)
-3. [UV Mapping](#UVMapping)
-4. [Blending](#Blending)
-5. [Back-culling](#BackCulling)
-6. [ZBuffer](#ZBuffer)
-7. [Alpha Testing](#AlphaTest)
-8. [Vertex Shader](#Vertex)
-9. [Typy danych](#Data)
-10. [Podstawy matematyki](#Mathematics)
-11. [Debugowanie shaderów](#Debugging)
-12. [Źródła](#Sources)
+1. [Co to są te Shadery?](#ShaderWhat)
+2. [Po co pisać Shadery?](#WhyShaders)
+3. [Fragment (Pixel) Shader](#Fragment)
+4. [UV Mapping](#UVMapping)
+5. [Blending](#Blending)
+6. [Back-culling](#BackCulling)
+7. [ZBuffer](#ZBuffer)
+8. [Alpha Testing](#AlphaTest)
+9. [Vertex Shader](#Vertex)
+10. [Typy danych](#Data)
+11. [Podstawy matematyki](#Mathematics)
+12. [Debugowanie shaderów](#Debugging)
+13. [Źródła](#Sources)
+
+---
+
+name: ShaderWhat
+
+# Co to są te Shadery?
+
+.center[.panel-image[![TinToy - Pixar](Images/TinToy.jpg)]]
+.right[Źródło: [IMDB](https://www.imdb.com/title/tt0096273/mediaindex)]
+
+---
+
+# Architektura GPU
+
+.center[.panel-image[![CPU vs GPU](Images/CPUvsGPU.png)]]
+.right[Źródło: [ResearchGate](https://www.researchgate.net/figure/CPU-vs-GPU-architecture_fig10_297734079)]
+
+---
+
+class: split-30
+
+# Rodzaje Shaderów
+
+.column[
+1. Fragment
+2. Vertex
+3. Hull, Domain
+4. Geometry
+5. Compute
+]
+
+.column[
+.panel-image[![ShaderPipeline](Images/shader_pipeline.jpg)]
+]
+.right[Źródło: [Shader Pipeline](https://vulkan-tutorial.com/Drawing_a_triangle/Graphics_pipeline_basics/Introduction)]
 
 ---
 
@@ -139,15 +184,15 @@ name: WhyShaders
 
 # Po co pisać Shadery?
 
-.center[.panel-image[![ShaderForge](Images/ShaderForge.jpg)]]
-.right[źródło: [ShaderForge](http://www.acegikmo.com/shaderforge/)]
+.center[.panel-image[![ShaderGraph](Images/ShaderGraph.jpg)]]
+.right[Źródło: [ShaderGraphUnity](https://unity.com/shader-graph)]
 
 ---
 
 # Po co pisać Shadery? Złożoność kodu
 
 .center[.panel-image[![Unreal](Images/Unreal.png)]]
-.right[źródło: [Unreal Forum](https://answers.unrealengine.com/questions/25422/shader-in-c-to-material-blueprint.html)]
+.right[Źródło: [Unreal Forum](https://answers.unrealengine.com/questions/25422/shader-in-c-to-material-blueprint.html)]
 .right[bonus: [Bleprints From Hell](https://blueprintsfromhell.tumblr.com/)]
 
 ---
@@ -155,14 +200,14 @@ name: WhyShaders
 # Po co pisać Shadery? Złożoność kodu
 
 .center[.panel-image[![ShaderToy](Images/ShaderToy.jpg)]]
-.right[źródło: [TDM - ShaderToy](https://www.shadertoy.com/view/Ms2SD1)]
+.right[Źródło: [TDM - ShaderToy](https://www.shadertoy.com/view/Ms2SD1)]
 
 ---
 
 # Po co pisać Shadery? Screen-space effects
 
 .center[.panel-image[![DeusEx](Images/DeusEx.jpg)]]
-.right[źródło: [Deus Ex](http://www.adriancourreges.com/blog/2015/03/10/deus-ex-human-revolution-graphics-study)]
+.right[Źródło: [Deus Ex](http://www.adriancourreges.com/blog/2015/03/10/deus-ex-human-revolution-graphics-study)]
 
 ---
 
@@ -172,9 +217,15 @@ name: WhyShaders
 
 ---
 
-# Po co pisać Shadery? Geometry oraz compute Shadery
+# Po co pisać Shadery? Geometry oraz Compute Shaders
 
 <div class="center"><iframe width="700" height="420" src="https://www.youtube.com/embed/7EEwMmExsPw" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+
+---
+
+# Po co pisać Shadery? Geometry oraz Compute Shaders
+
+<div class="center"><iframe width="700" height="420" src="https://www.youtube.com/embed/m9jSzVjrh98" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
 
 ---
 
@@ -183,22 +234,31 @@ name: WhyShaders
 1. Tworzenie niesamowitych efektów graficznych
 2. Optymalizacja gry
 3. Animacje niemożliwe do osiągnięcia normalnymi sposobami
-4. Proceduralne generowanie (real-time w szczególności)
-5. Matematyka w Unity
-6. Job System w Unity
-7. Świetna zabawa dla nerdów lubiących matematykę :D
+4. Skomplikowane Postprocesy (Raymarching)
+5. Proceduralne generowanie (real-time w szczególności)
+6. Matematyka w Unity
+7. Job System w Unity
+8. Świetna zabawa dla nerdów lubiących matematykę :D
 
 ---
 
-# Template
+name: Fragment
+
+# Fragment (Pixel) Shader
+
+.center[.panel-image[![Basic-Fragment](Images/Fragment_Basic.jpg)]]
+
+---
+
+# Template - ShaderLab (Unity Shader Language) Block
 
 ```
-Shader "Template" {
-  SubShader {
-    Pass {
-      CGPROGRAM
-      #pragma vertex vert
-      #pragma fragment frag
+*Shader "Template" {
+* SubShader {
+*   Pass {
+*     CGPROGRAM
+*     #pragma vertex vert
+*     #pragma fragment frag
 
       struct appdata { float4 vertex : POSITION; };
       struct v2f { float4 vertex : SV_POSITION; };
@@ -212,6 +272,36 @@ Shader "Template" {
       fixed4 frag (v2f i) : SV_Target {
         return fixed4(0, 1, 0, 1);
       }
+*     ENDCG
+*   }
+* }
+*}
+```
+
+---
+
+# Template - Clear HLSL Block
+
+```
+Shader "Template" {
+  SubShader {
+    Pass {
+      CGPROGRAM
+      #pragma vertex vert
+      #pragma fragment frag
+
+*     struct appdata { float4 vertex : POSITION; };
+*     struct v2f { float4 vertex : SV_POSITION; };
+
+*     v2f vert (appdata v) {
+*       v2f o;
+*       o.vertex = UnityObjectToClipPos(v.vertex);
+*       return o;
+*     }
+
+*     fixed4 frag (v2f i) : SV_Target {
+*       return fixed4(0, 1, 0, 1);
+*     }
       ENDCG
     }
   }
@@ -220,11 +310,26 @@ Shader "Template" {
 
 ---
 
-name: Fragment
+# Template - Vertex from object to clip position
 
-# Fragment (Pixel) Shader
+Unity Utility Methods
+```
+o.vertex = UnityObjectToClipPos(v.vertex);
+```
 
-.center[.panel-image[![Basic-Fragment](Images/Fragment_Basic.jpg)]]
+Clear HLSL approach
+```
+//Variables
+float4x4 World;
+float4x4 View;
+float4x4 Projection;
+
+//Vertex Shader
+float4 worldPos = mul(v.vertex, World);
+float4 viewPosition = mul(worldPosition, View);
+o.vertex = mul(viewPosition, Projection);
+
+```
 
 ---
 
@@ -234,6 +339,39 @@ name: UVMapping
 
 .center[.panel-image[![Texture coordinate](Images/texcoordproportion.png)]]
 .right[Źródło: [3D modelling for programmers](https://cathyatseneca.gitbooks.io/3d-modelling-for-programmers/content/unwrapping/texture_coordinates.html)]
+
+---
+
+# UV Mapping
+
+<div class="center"><video width="700" height="420" controls>
+  <source src="Images/uvMapping.mp4" type="video/mp4">
+  Your browser does not support mp4 or video tag.
+</video></div>
+.right[Źródło: [UV Mapping](https://twitter.com/ibuprogames/status/1045041059464695809)]
+
+---
+
+# UV Mapping
+
+```
+struct appdata {
+	...
+	float2 uv : TEXCOORD0;
+}
+
+struct v2f {
+	...
+	float2 uv : TEXCOORD0;
+}
+...
+sampler2D _MainTex;
+...
+fixed4 frag(v2f i) : SV_TARGET
+{
+	fixed4 col = tex2D(_MainTex, i.uv);
+}
+```
 
 ---
 
@@ -249,9 +387,53 @@ name: Blending
 
 # Blending
 
+## Texture Blending
+
+```
+...
+sampler2D _MainTex
+sampler2D _SecondTex;
+half _MainFactor;
+half _SecondFactor;
+...
+fixed4 frag(v2f i) : SV_TARGET
+{
+	...
+	fixed4 col = tex2D(_MainTex, i.uv) * _MainFactor;
+	fixed4 col2 = tex2D(_SecondTex, i.uv) * _SecondFactor;
+	//Add
+	return col + col2;
+	//Screen
+	return 1.0 - (1.0 - col) * (1.0 - col2);
+}
+```
+
+---
+
+# Blending
+
 ## Buffer Blending
 
 .center[.panel-image[![Buffer blending](Images/Transparency.jpg)]]
+
+---
+
+# Blending
+
+## Buffer Blending
+
+```
+//Blend src dst https://docs.unity3d.com/Manual/SL-Blend.html
+//Src - piksel z naszego obecnego obiektu
+//Dst - piksel z wyrenderowanych obiektów za naszym
+
+//Blend One One // src.rgb + dst.rgb
+Blend SrcAlpha OneMinusSrcAlpha // src.a * src.rgb + (1 - src.a) * dst.rgb;
+
+//Operacja między dwoma pikselami, domyślnie jest to Add
+//BlendOp Sub // Blend src - dst
+BlendOp Add // Blend src + dst
+```
 
 ---
 
@@ -259,7 +441,14 @@ name: BackCulling
 
 # Back-Culling 
 
-.center[.panel-image[![Back face culling](Images/BackFaceCulling.jpg)]]
+.column[.panel-image[![Back face culling](Images/BackFaceCulling.jpg)]]
+.column[
+```
+Cull Front
+Cull Off
+Cull Back
+```
+]
 
 ---
 
@@ -267,7 +456,16 @@ name: ZBuffer
 
 # ZBuffer
 
-.center[.panel-image[![ZTest Greater](Images/ZTestGreater.jpg)]]
+.column[.panel-image[![ZTest Greater](Images/ZTestGreater.jpg)]]
+.column[
+```
+ZTest Greater
+ZTest Off
+ZTest Less
+
+ZWrite Off
+```
+]
 
 ---
 
@@ -275,7 +473,20 @@ name: AlphaTest
 
 # Alpha Testing
 
-.center[.panel-image[![Alpha Test](Images/AlphaTest.jpg)]]
+.column[.panel-image[![Alpha Test](Images/AlphaTest.jpg)]]
+.column[
+```
+...
+half _Cutout
+...
+fixed4(v2f i) : SV_TARGET
+{
+	...
+	clip(col.a - _Cutout);
+	...
+}
+```
+]
 
 ---
 
@@ -284,6 +495,14 @@ name: Vertex
 # Vertex Shader
 
 .center[.panel-image[![Vertex Shader Animation](Images/VertexShader.jpg)]]
+```
+v2f vert(appdata v)
+{
+	...
+	o.vertex = UnityObjectToClipPos(fixed4(v.vertex.xyz * abs(sin(v.vertex.y * _Factor + _Time.y)), 1));
+	...
+}
+```
 
 ---
 
@@ -387,9 +606,9 @@ name: Debugging
 
 ---
 
-name: Task
+name: Example
 
-# Zadanie - stworzyć Shader
+# Przykładowy Shader
 
 .center[.panel-image[![Task](Images/Chess.jpg)]]
 przydatne rzeczy: `uv, frac, clip, ceil, _Time, random2D`
@@ -422,7 +641,6 @@ name: Sources
         highlightStyle: 'vs',
         highlightLines: true
       });
-
 
       var turtle = document.getElementById("turtle");
       var container = document.getElementById("turtleContainer");

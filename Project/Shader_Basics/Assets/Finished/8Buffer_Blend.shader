@@ -20,8 +20,8 @@
 
 		//Blend One One // src.rgb + dst.rgb
 		Blend SrcAlpha OneMinusSrcAlpha // src.a * src.rgb + (1 - src.a) * dst.rgb;
+		
 		//Operacja między dwoma pikselami, domyślnie jest to Add
-
 		//BlendOp Sub // Blend src - dst
 		BlendOp Add // Blend src + dst
 
